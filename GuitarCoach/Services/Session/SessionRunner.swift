@@ -20,7 +20,6 @@ enum SessionRunnerState {
 }
 
 @MainActor
-@Observable
 final class SessionRunner {
     private(set) var session: PracticeSession
     private(set) var orderedItems: [SessionItem]
