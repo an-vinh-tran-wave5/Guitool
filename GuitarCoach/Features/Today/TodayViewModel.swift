@@ -24,7 +24,7 @@ struct PlannedItem: Identifiable, Equatable {
     var isManuallyOverridden: Bool
 }
 
-@Observable
+@MainActor
 final class TodayViewModel {
     private(set) var plannedItems: [PlannedItem] = []
     private(set) var isEmpty: Bool = false
