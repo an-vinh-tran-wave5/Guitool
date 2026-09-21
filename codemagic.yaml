@@ -3,40 +3,69 @@ workflows:
     name: GuitarCoach iOS unsigned build
     max_build_duration: 30
     instance_type: mac_mini_m2
+
     environment:
       xcode: latest
       vars:
-        PROJECT: "$CM_BUILD_DIR/GuitarCoach/GuitarCoach.xcodeproj"
         SCHEME: "GuitarCoach"
+
     scripts:
       - name: Install XcodeGen
         script: |
           brew install xcodegen || true
+
       - name: Generate Xcode project
         script: |
+          set -e
           cd "$CM_BUILD_DIR/GuitarCoach"
           xcodegen generate --spec project.yml
-      - name: Build unsigned archive
+
+      - name: Build unsigned iOS app
         script: |
           set -e
-          rm -rf build Payload GuitarCoach.ipa
+
+          rm -rf "$CM_BUILD_DIR/build"
+          mkdir -p "$CM_BUILD_DIR/build"
+
           xcodebuild \
-            -project "$PROJECT" \
+            -project "$CM_BUILD_DIR/GuitarCoach/GuitarCoach.xcodeproj" \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath "$CM_BUILD_DIR/GuitarCoach.xcarchive" \
-            archive \
-            CODE_SIGNING_ALLOWED=NO \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$CM_BUILD_DIR/build" \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
-      - name: Package IPA
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package unsigned IPA
         script: |
           set -e
-          rm -rf Payload GuitarCoach.ipa
-          mkdir -p Payload
-          cp -R "$CM_BUILD_DIR/GuitarCoach.xcarchive/Products/Applications/GuitarCoach.app" Payload/
+
+          APP_PATH="$CM_BUILD_DIR/build/Build/Products/Release-iphoneos/GuitarCoach.app"
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: GuitarCoach.app not found at:"
+            echo "$APP_PATH"
+            echo ""
+            echo "Searching for GuitarCoach.app..."
+            find "$CM_BUILD_DIR/build" -name "GuitarCoach.app" -print
+            exit 1
+          fi
+
+          rm -rf "$CM_BUILD_DIR/Payload"
+          rm -f "$CM_BUILD_DIR/GuitarCoach.ipa"
+
+          mkdir -p "$CM_BUILD_DIR/Payload"
+          cp -R "$APP_PATH" "$CM_BUILD_DIR/Payload/"
+
+          cd "$CM_BUILD_DIR"
           /usr/bin/zip -qry GuitarCoach.ipa Payload
+
+          echo "IPA created successfully:"
+          ls -lh "$CM_BUILD_DIR/GuitarCoach.ipa"
+
     artifacts:
-      - GuitarCoach.ipa
-      - $CM_BUILD_DIR/GuitarCoach.xcarchive/dSYMs/**
+      - $CM_BUILD_DIR/GuitarCoach.ipa
+      - $CM_BUILD_DIR/build/**/*.app
