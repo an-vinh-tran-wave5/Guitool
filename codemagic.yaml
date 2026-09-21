@@ -6,7 +6,7 @@ workflows:
     environment:
       xcode: latest
       vars:
-        PROJECT: "GuitarCoach.xcodeproj"
+        PROJECT: "$CM_BUILD_DIR/GuitarCoach/GuitarCoach.xcodeproj"
         SCHEME: "GuitarCoach"
     scripts:
       - name: Install XcodeGen
@@ -14,6 +14,7 @@ workflows:
           brew install xcodegen || true
       - name: Generate Xcode project
         script: |
+          cd "$CM_BUILD_DIR/GuitarCoach"
           xcodegen generate --spec project.yml
       - name: Build unsigned archive
         script: |
