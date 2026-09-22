@@ -1,0 +1,14 @@
+{
+  "name": "guitool-tabs-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tiny read-only file-server exposing a shared folder of Guitar Pro tab files (.gp/.gp3/.gp4/.gp5/.gp7/.gpx) as a list+download REST API for Guitool's Songs → Tabs page. Deliberately minimal — one dependency (Express) plus built-in CORS headers, no auth/database, meant to run as an internal Docker service on a home network or LAN, not exposed to the public internet.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

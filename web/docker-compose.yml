@@ -1,0 +1,65 @@
+# Services — start whichever fits what you're doing:
+#
+#   docker compose up dev          # hot-reload dev server at http://localhost:5173
+#   docker compose up web          # production build served by nginx at http://localhost:8080
+#   docker compose up tabs-server  # shared Guitar Pro tab file-server at http://localhost:4001
+#   docker compose up --build      # rebuild images first (do this after changing
+#                                   # package.json, or after editing Dockerfile*)
+#
+# `dev`/`web` and `tabs-server` are independent — the frontend talks to
+# tabs-server over plain HTTP from the browser (see VITE_TABS_SERVER_URL),
+# so you can run the frontend without it; the Songs → Tabs page just shows
+# its shared-library section as unavailable.
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '5173:5173'
+    volumes:
+      # Bind-mount the source in for hot reload...
+      - .:/app
+      # ...but keep node_modules the *container's* own (an anonymous
+      # volume here shadows the bind mount for just this one folder) so a
+      # host without Node/npm doesn't clobber it with an empty/missing
+      # directory, and so Linux-built native deps aren't overwritten by
+      # whatever the host OS installed.
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true # file-watching reliability on some Docker Desktop / bind-mount setups
+      # Read from the browser, so this is the URL your host machine (not
+      # the container) can reach — the tabs-server's published port below.
+      - VITE_TABS_SERVER_URL=http://localhost:4001
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tabs-server
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_TABS_SERVER_URL=http://localhost:4001
+    ports:
+      - '8080:80'
+    depends_on:
+      - tabs-server
+
+  # Small file-server exposing a shared folder of Guitar Pro tab files
+  # (.gp/.gp3/.gp4/.gp5/.gp7/.gpx) as a list+download REST API — see
+  # docker/tabs-server/server.js. Cheap-but-good-enough on purpose: no
+  # database, no object storage, just this folder on disk.
+  tabs-server:
+    build:
+      context: ./docker/tabs-server
+    ports:
+      - '4001:4001'
+    volumes:
+      # Point this at wherever your Guitar Pro files actually live — a
+      # different host folder, or a mounted network/NAS share — instead of
+      # ./shared-tabs if you'd rather not keep them next to the project.
+      - ./shared-tabs:/data/tabs:ro
+    restart: unless-stopped

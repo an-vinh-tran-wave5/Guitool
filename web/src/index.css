@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Theme tokens. Every `ink-*` / `brass-*` / `ember-*` / `parchment-*`
+ * Tailwind color used anywhere in the app (see tailwind.config.js) resolves
+ * to one of these CSS custom properties, not a literal hex value. `:root`
+ * holds the original dark "vintage tube-amp" values — the app's only look
+ * until now, so dark stays the default with no attribute needed. Adding
+ * `data-theme="light"` to `<html>` (see `hooks/useTheme.tsx`) swaps in the
+ * light values below instead. Component code never checks the theme itself
+ * — a `.panel` or `text-parchment-200` just picks up whichever value is
+ * active, in every file, with zero `dark:`/`light:` variants to maintain.
+ *
+ * The two ramps aren't the same colors at lower opacity — for light mode,
+ * `ink` (originally "the dark surface color") and `parchment` (originally
+ * "the light text color") deliberately swap which end of each ramp is
+ * light vs. dark, so a background class and a text class both still land
+ * somewhere sensible for a light page. `brass`/`ember` are deepened a
+ * couple of steps in light mode so text set in those colors (chips,
+ * eyebrow labels, favorite stars) stays readable on a light background.
+ * This is a first pass, not an exhaustively contrast-audited palette.
+ */
+:root {
+  --color-ink-100: 245 242 236;
+  --color-ink-200: 232 226 213;
+  --color-ink-300: 203 192 171;
+  --color-ink-400: 107 93 77;
+  --color-ink-500: 74 63 52;
+  --color-ink-600: 54 47 39;
+  --color-ink-700: 40 35 30;
+  --color-ink-800: 29 26 23;
+  --color-ink-900: 20 18 16;
+  --color-ink-950: 11 10 9;
+
+  --color-brass-100: 248 240 218;
+  --color-brass-200: 241 227 184;
+  --color-brass-300: 230 207 143;
+  --color-brass-400: 217 185 104;
+  --color-brass-500: 201 162 75;
+  --color-brass-600: 169 128 58;
+  --color-brass-700: 132 97 44;
+  --color-brass-800: 95 70 32;
+  --color-brass-900: 61 45 22;
+  --color-brass-950: 36 26 13;
+
+  --color-ember-100: 251 220 211;
+  --color-ember-200: 245 172 155;
+  --color-ember-300: 240 131 107;
+  --color-ember-400: 227 92 63;
+  --color-ember-500: 200 67 43;
+  --color-ember-600: 163 52 31;
+  --color-ember-700: 124 39 23;
+  --color-ember-800: 92 29 19;
+  --color-ember-900: 61 19 13;
+  --color-ember-950: 36 11 8;
+
+  --color-parchment-100: 250 245 233;
+  --color-parchment-200: 241 230 208;
+  --color-parchment-300: 228 211 172;
+  --color-parchment-400: 205 185 138;
+  --color-parchment-500: 168 145 111;
+  --color-parchment-600: 138 118 90;
+  --color-parchment-700: 107 90 69;
+  --color-parchment-800: 77 64 48;
+  --color-parchment-900: 46 39 28;
+  --color-parchment-950: 26 21 15;
+
+  /* Speckled dot in the body background grain — white flecks read as a
+     subtle texture on the dark theme; light theme uses dark flecks instead. */
+  --grain-dot: 255 255 255;
+  --scrollbar-thumb: 74 63 52;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-ink-100: 32 26 20;
+  --color-ink-200: 58 47 36;
+  --color-ink-300: 107 93 74;
+  --color-ink-400: 143 125 97;
+  --color-ink-500: 168 145 111;
+  --color-ink-600: 203 185 153;
+  --color-ink-700: 221 208 184;
+  --color-ink-800: 232 223 205;
+  --color-ink-900: 239 232 219;
+  --color-ink-950: 247 243 236;
+
+  --color-brass-100: 232 217 176;
+  --color-brass-200: 122 92 34;
+  --color-brass-300: 138 106 46;
+  --color-brass-400: 156 121 53;
+  --color-brass-500: 140 106 44;
+  --color-brass-600: 110 83 34;
+  --color-brass-700: 84 64 26;
+  --color-brass-800: 61 46 19;
+  --color-brass-900: 42 32 13;
+  --color-brass-950: 26 20 8;
+
+  --color-ember-100: 240 211 202;
+  --color-ember-200: 194 90 61;
+  --color-ember-300: 181 67 43;
+  --color-ember-400: 163 52 31;
+  --color-ember-500: 140 44 28;
+  --color-ember-600: 115 36 24;
+  --color-ember-700: 92 29 19;
+  --color-ember-800: 69 21 14;
+  --color-ember-900: 48 14 9;
+  --color-ember-950: 32 10 6;
+
+  --color-parchment-100: 36 31 26;
+  --color-parchment-200: 61 52 42;
+  --color-parchment-300: 92 79 63;
+  --color-parchment-400: 120 106 84;
+  --color-parchment-500: 156 139 111;
+  --color-parchment-600: 184 168 136;
+  --color-parchment-700: 207 195 168;
+  --color-parchment-800: 226 217 196;
+  --color-parchment-900: 238 231 216;
+  --color-parchment-950: 247 243 234;
+
+  --grain-dot: 0 0 0;
+  --scrollbar-thumb: 168 145 111;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink-950 text-parchment-200 font-body antialiased;
+    background-image: radial-gradient(circle at 1px 1px, rgb(var(--grain-dot) / 0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-wide;
+  }
+
+  ::selection {
+    @apply bg-ember-600 text-parchment-100;
+  }
+
+  /* Slim scrollbars that match the active theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--scrollbar-thumb)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--scrollbar-thumb));
+    border-radius: 9999px;
+  }
+}
+
+@keyframes shape-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-ink-800/80 border border-ink-600/60 rounded-2xl shadow-panel;
+  }
+
+  .panel-raised {
+    @apply bg-ink-700/70 border border-ink-600/60 rounded-2xl shadow-panel;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-ember-400 to-ember-600
+      px-5 py-3 font-display font-semibold uppercase tracking-wide text-parchment-100 shadow-knob
+      transition active:scale-[0.98] hover:from-ember-300 hover:to-ember-500 disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-500 bg-ink-700/70
+      px-4 py-2.5 font-display font-medium uppercase tracking-wide text-parchment-300 transition
+      hover:bg-ink-600/70 hover:text-parchment-100 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-parchment-300/80
+      transition hover:bg-ink-700/60 hover:text-parchment-100;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-brass-600/40 bg-brass-500/10 px-2.5 py-0.5
+      text-xs font-medium uppercase tracking-wide text-brass-300;
+  }
+
+  .label-eyebrow {
+    @apply font-display text-xs font-semibold uppercase tracking-widest2 text-brass-400;
+  }
+}
+
+/*
+ * alphaTab (My Tabs / Songs → Tabs, see TabPlayer.tsx) renders notation as
+ * SVG it injects directly into the DOM, with its own fixed (dark) glyph
+ * colors and — confirmed by reading the installed package's source,
+ * `node_modules/@coderline/alphatab/dist/alphaTab.core.mjs` — *no* default
+ * CSS of its own for these class names; it expects the embedding app to
+ * style them. Unscoped by design (these aren't React-rendered class names
+ * Tailwind/CSS-modules could scope) and deliberately not theme-variable
+ * (`--color-*`) driven — real sheet music reads as ink on paper, so the
+ * notation surface stays a fixed light "paper" regardless of the app's
+ * dark/light theme, the same way a real notation app's score view would.
+ */
+
+/* The notation surface itself — always light, so alphaTab's black glyphs
+   stay legible even when the rest of the app is in dark mode. */
+.at-surface {
+  background-color: rgb(247 243 234);
+  border-radius: 0.75rem;
+}
+
+/* A soft wash over the whole bar/measure currently playing. */
+.at-cursor-bar {
+  background: rgba(201, 162, 75, 0.18);
+}
+
+/* The thin moving playhead marking the exact current beat. */
+.at-cursor-beat {
+  background: rgba(200, 67, 43, 0.85);
+}
+
+/* The note(s) actually sounding right now — alphaTab adds/removes this
+   class on the fly during playback (see `highlightElements`/
+   `removeHighlights` in alphaTab.core.mjs); `!important` because the glyphs
+   underneath carry their own inline `fill` attributes that would otherwise
+   win. */
+.at-highlight,
+.at-highlight * {
+  fill: rgb(200 67 43) !important;
+}

@@ -1,0 +1,19 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+*.local
+*.tsbuildinfo
+npm-debug.log*
+.vscode
+.DS_Store
+# NOT the whole `docker/` folder — the production Dockerfile does
+# `COPY docker/nginx.conf ...`, which needs that file present in the build
+# context. Only excluding the tabs-server sub-app (irrelevant to this image
+# — it's built from its own separate context, see docker-compose.yml).
+docker/tabs-server
+Dockerfile*
+docker-compose*.yml
+# Shared tab files aren't needed inside the app image and can be large binaries.
+shared-tabs
